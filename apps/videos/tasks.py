@@ -8,6 +8,9 @@ from django_celery_beat.models import PeriodicTask, IntervalSchedule
 from core.youtube_api import YouTubeAPI
 
 from .models import VideoLog, Video, VideoFetchMethod, KeyWordEntry
+import logging
+
+logger = logging.getLogger("tasks_log")
 
 @shared_task(bind = True)
 def process_trigger(self, keyword):
@@ -19,9 +22,9 @@ def process_trigger(self, keyword):
     method, response = youtube_api.fetch_videos(search_query, max_results)
 
     if method == VideoFetchMethod.INVIDIOUS:
-        print("IN VideoFetchMethod.INVIDIOUS")
+        logger.info("IN VideoFetchMethod.INVIDIOUS")
         for r in response:
-            print(f'{r["videoId"]} - {r["title"]}')
+            logger.info(f'{r["videoId"]} - {r["title"]}')
             video, created = Video.objects.update_or_create(
                 video_id=r["videoId"],  # Unique identifier for the video
                 defaults={
@@ -35,9 +38,9 @@ def process_trigger(self, keyword):
                 }
             )
     else:
-        print("IN VideoFetchMethod.YOUTUBE")
+        logger.info("IN VideoFetchMethod.YOUTUBE")
         for r in response["items"]:
-            print(f"{r['id']['videoId']} - {r['snippet']['title']}")
+            logger.info(f"{r['id']['videoId']} - {r['snippet']['title']}")
             video, created = Video.objects.update_or_create(
                 video_id=r['id']['videoId'],  # Unique identifier for the video
                 defaults={

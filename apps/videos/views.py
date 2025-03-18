@@ -9,7 +9,7 @@ from .models import VideoLog, Video, VideoFetchMethod, KeyWordEntry
 
 schedule, created = IntervalSchedule.objects.get_or_create(every=10, period=IntervalSchedule.SECONDS)
 
-logger = logging.getLogger("server_log")
+logger = logging.getLogger("task_log")
 
 def health_check(request):
     data = {
@@ -20,7 +20,9 @@ def health_check(request):
 
 def check_trigger(request):
     task_name = "FamPay"
-    
+    logger.info(task_name)
+    return JsonResponse({"status":"Done"})
+
     # if KeyWordEntry.objects.filter(keyword=task_name).exists():
     #     return JsonResponse({"status":"Keyword already exists"})
 
