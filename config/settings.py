@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "apps.videos",
+    "apps.dashboard",
     "django_celery_beat",
     "django_celery_results",
     "drf_yasg",

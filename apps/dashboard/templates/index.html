@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Explorer</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff0000;
+            --secondary-color: #282828;
+            --background-color: #f9f9f9;
+            --text-color: #333;
+            --card-bg: #fff;
+            --border-color: #e0e0e0;
+        }
+        
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        
+        header {
+            background-color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 22px;
+            color: var(--text-color);
+        }
+        
+        .logo span {
+            color: var(--primary-color);
+            margin-left: 5px;
+        }
+        
+        .search-container {
+            flex-grow: 1;
+            max-width: 600px;
+            margin: 0 20px;
+        }
+        
+        .search-form {
+            display: flex;
+        }
+        
+        #search-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px 0 0 20px;
+            font-size: 16px;
+            outline: none;
+        }
+        
+        #search-button {
+            background-color: #f0f0f0;
+            border: 1px solid var(--border-color);
+            border-left: none;
+            border-radius: 0 20px 20px 0;
+            padding: 0 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        #search-button:hover {
+            background-color: #e0e0e0;
+        }
+        
+        main {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: normal;
+        }
+        
+        .videos-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .video-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .thumbnail-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            overflow: hidden;
+        }
+        
+        .thumbnail {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .video-duration {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        
+        .video-info {
+            padding: 12px;
+        }
+        
+        .video-title {
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .channel-name {
+            color: #606060;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .video-metadata {
+            display: flex;
+            color: #606060;
+            font-size: 14px;
+        }
+        
+        .view-count::after {
+            content: "•";
+            margin: 0 5px;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading-spinner i {
+            font-size: 40px;
+            color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .pagination button {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            margin: 0 5px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .pagination button:hover:not([disabled]) {
+            background-color: #f0f0f0;
+        }
+        
+        .pagination button.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .pagination button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        #no-results {
+            text-align: center;
+            padding: 50px 0;
+            font-size: 18px;
+            color: #606060;
+            display: none;
+        }
+
+        .keyword-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .keyword-tag {
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            padding: 5px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .keyword-tag:hover {
+            background-color: #e0e0e0;
+        }
+
+        .keyword-tag.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <i class="fas fa-play-circle"></i>
+            <span>DummyYT</span>
+        </div>
+        <div class="search-container">
+            <form class="search-form" id="search-form">
+                <input type="text" id="search-input" placeholder="Search videos by keyword...">
+                <button type="submit" id="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <main>
+        <h1 id="results-title">Popular Videos</h1>
+        
+        <div class="keyword-tags" id="keyword-tags">
+            <!-- Popular keywords will be added here dynamically -->
+        </div>
+        
+        <div class="videos-container" id="videos-container"></div>
+        
+        <div id="loading-spinner" class="loading-spinner">
+            <i class="fas fa-spinner"></i>
+        </div>
+        
+        <div id="no-results">No videos found for this keyword.</div>
+        
+        <div class="pagination" id="pagination"></div>
+    </main>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = '/api'; // Update with your API base URL
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentKeyword = '';
+        
+        // Popular keywords to display as tags
+        const popularKeywords = [
+            'Python', 'JavaScript', 'Machine Learning', 'Web Development',
+            'Data Science', 'Mobile Apps', 'Cloud Computing', 'Cybersecurity'
+        ];
+        
+        // DOM Elements
+        const searchForm = document.getElementById('search-form');
+        const searchInput = document.getElementById('search-input');
+        const videosContainer = document.getElementById('videos-container');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const noResults = document.getElementById('no-results');
+        const resultsTitle = document.getElementById('results-title');
+        const paginationElement = document.getElementById('pagination');
+        const keywordTags = document.getElementById('keyword-tags');
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load initial videos
+            fetchVideos();
+            
+            // Add event listeners
+            searchForm.addEventListener('submit', handleSearch);
+            
+            // Load keyword tags
+            loadKeywordTags();
+        });
+        
+        // Load keyword tags
+        function loadKeywordTags() {
+            popularKeywords.forEach(keyword => {
+                const tag = document.createElement('div');
+                tag.className = 'keyword-tag';
+                tag.textContent = keyword;
+                tag.addEventListener('click', () => {
+                    searchInput.value = keyword;
+                    handleSearch(new Event('submit'));
+                });
+                keywordTags.appendChild(tag);
+            });
+        }
+        
+        // Handle search form submission
+        function handleSearch(event) {
+            event.preventDefault();
+            currentKeyword = searchInput.value.trim();
+            currentPage = 1;
+            
+            if (currentKeyword) {
+                resultsTitle.textContent = `Videos for "${currentKeyword}"`;
+                updateActiveKeywordTag();
+                fetchVideos();
+            }
+        }
+        
+        // Update active keyword tag
+        function updateActiveKeywordTag() {
+            const tags = document.querySelectorAll('.keyword-tag');
+            tags.forEach(tag => {
+                if (tag.textContent.toLowerCase() === currentKeyword.toLowerCase()) {
+                    tag.classList.add('active');
+                } else {
+                    tag.classList.remove('active');
+                }
+            });
+        }
+        
+        // Fetch videos from API
+        async function fetchVideos() {
+            showLoading();
+            
+            try {
+                let url;
+                if (currentKeyword) {
+                    // Use keyword-specific endpoint
+                    url = `${API_BASE_URL}/keyword/${encodeURIComponent(currentKeyword)}/videos/?page=${currentPage}`;
+                } else {
+                    // Fetch all videos
+                    url = `${API_BASE_URL}/videos/?page=${currentPage}`;
+                }
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    renderVideos(data.results);
+                    totalPages = Math.ceil(data.count / 10); // Assuming page size of 10
+                    renderPagination();
+                    
+                    if (data.results.length === 0) {
+                        showNoResults();
+                    } else {
+                        hideNoResults();
+                    }
+                } else {
+                    console.error('API Error:', data);
+                    showNoResults();
+                }
+            } catch (error) {
+                console.error('Fetch Error:', error);
+                showNoResults();
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // Render videos to container
+        function renderVideos(videos) {
+            videosContainer.innerHTML = '';
+            
+            videos.forEach(video => {
+                const videoCard = document.createElement('div');
+                videoCard.className = 'video-card';
+                
+                // Format date
+                const publishDate = new Date(video.published_at);
+                const timeAgo = getTimeAgo(publishDate);
+                
+                videoCard.innerHTML = `
+                    <div class="thumbnail-container">
+                        <img class="thumbnail" src="${video.thumbnail}" alt="${video.title}">
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">${video.title}</div>
+                        <div class="channel-name">${video.channel_title}</div>
+                        <div class="video-metadata">
+                            <span class="publish-date">${timeAgo}</span>
+                        </div>
+                    </div>
+                `;
+                
+                videoCard.addEventListener('click', () => {
+                    window.open(`https://www.youtube.com/watch?v=${video.video_id}`, '_blank');
+                });
+                
+                videosContainer.appendChild(videoCard);
+            });
+        }
+        
+        // Render pagination
+        function renderPagination() {
+            paginationElement.innerHTML = '';
+            
+            // Previous button
+            const prevButton = document.createElement('button');
+            prevButton.innerHTML = '<i class="fas fa-chevron-left"></i> Previous';
+            prevButton.disabled = currentPage === 1;
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    fetchVideos();
+                    window.scrollTo(0, 0);
+                }
+            });
+            paginationElement.appendChild(prevButton);
+            
+            // Page number display
+            const pageInfo = document.createElement('button');
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            pageInfo.disabled = true;
+            paginationElement.appendChild(pageInfo);
+            
+            // Next button
+            const nextButton = document.createElement('button');
+            nextButton.innerHTML = 'Next <i class="fas fa-chevron-right"></i>';
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    fetchVideos();
+                    window.scrollTo(0, 0);
+                }
+            });
+            paginationElement.appendChild(nextButton);
+        }
+        
+        // Get time ago string from date
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) {
+                return `${diffInSeconds} seconds ago`;
+            }
+            
+            const diffInMinutes = Math.floor(diffInSeconds / 60);
+            if (diffInMinutes < 60) {
+                return `${diffInMinutes} ${diffInMinutes === 1 ? 'minute' : 'minutes'} ago`;
+            }
+            
+            const diffInHours = Math.floor(diffInMinutes / 60);
+            if (diffInHours < 24) {
+                return `${diffInHours} ${diffInHours === 1 ? 'hour' : 'hours'} ago`;
+            }
+            
+            const diffInDays = Math.floor(diffInHours / 24);
+            if (diffInDays < 30) {
+                return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
+            }
+            
+            const diffInMonths = Math.floor(diffInDays / 30);
+            if (diffInMonths < 12) {
+                return `${diffInMonths} ${diffInMonths === 1 ? 'month' : 'months'} ago`;
+            }
+            
+            const diffInYears = Math.floor(diffInMonths / 12);
+            return `${diffInYears} ${diffInYears === 1 ? 'year' : 'years'} ago`;
+        }
+        
+        // Show loading spinner
+        function showLoading() {
+            loadingSpinner.style.display = 'block';
+            videosContainer.style.opacity = '0.5';
+        }
+        
+        // Hide loading spinner
+        function hideLoading() {
+            loadingSpinner.style.display = 'none';
+            videosContainer.style.opacity = '1';
+        }
+        
+        // Show no results message
+        function showNoResults() {
+            noResults.style.display = 'block';
+            videosContainer.innerHTML = '';
+        }
+        
+        // Hide no results message
+        function hideNoResults() {
+            noResults.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

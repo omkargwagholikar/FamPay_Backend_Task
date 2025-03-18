@@ -7,4 +7,5 @@ urlpatterns = [
     path("ping/", views.health_check),
 
     path("api/", include("apps.videos.urls")),
+    path("", include("apps.dashboard.urls")),
 ]
