@@ -3,4 +3,5 @@ from .models import *
 
 admin.site.register(Video)
 admin.site.register(VideoLog)
+admin.site.register(KeyWordEntry)
 

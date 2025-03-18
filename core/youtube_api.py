@@ -3,6 +3,7 @@ from typing import Optional, List
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from django.conf import settings
+from apps.videos.models import VideoFetchMethod
 import requests
 
 logger = logging.getLogger(__name__)
@@ -98,7 +99,7 @@ class YouTubeAPI:
             logger.error("YouTube client is not available. Using INVIDIOUS_API")
             data = self.fetch_videos_from_invidious(query)
             if data is not None:
-                return data
+                return (VideoFetchMethod.INVIDIOUS, data)
             return None
 
         attempts = 0
@@ -138,7 +139,7 @@ class YouTubeAPI:
                         if video_id in stats_dict:
                             item['statistics'] = stats_dict[video_id]
                 
-                return response
+                return (VideoFetchMethod.YOUTUBE, response)
                 
             except HttpError as e:
                 error_message = str(e)
@@ -159,7 +160,7 @@ class YouTubeAPI:
 
         data = self.fetch_videos_from_invidious(query)
         if data is not None:
-            return data
+            return (VideoFetchMethod.INVIDIOUS, data)
         
         return None
     
