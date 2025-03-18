@@ -19,8 +19,9 @@ def process_trigger(self, keyword):
     method, response = youtube_api.fetch_videos(search_query, max_results)
 
     if method == VideoFetchMethod.INVIDIOUS:
+        print("IN VideoFetchMethod.INVIDIOUS")
         for r in response:
-            print(r)
+            print(f'{r["videoId"]} - {r["title"]}')
             video, created = Video.objects.update_or_create(
                 video_id=r["videoId"],  # Unique identifier for the video
                 defaults={
@@ -29,13 +30,26 @@ def process_trigger(self, keyword):
                     'published_at': datetime.fromtimestamp(r["published"]),
                     'channel_title': r["author"],
                     'thumbnail': r["videoThumbnails"][0]["url"],
-                    'keyword': keyword_obj
+                    'keyword': keyword_obj,
+                    'method': VideoFetchMethod.INVIDIOUS,
                 }
             )
-
     else:
-        pass
-    print(response)
+        print("IN VideoFetchMethod.YOUTUBE")
+        for r in response["items"]:
+            print(f"{r['id']['videoId']} - {r['snippet']['title']}")
+            video, created = Video.objects.update_or_create(
+                video_id=r['id']['videoId'],  # Unique identifier for the video
+                defaults={
+                    'title': r['snippet']['title'],
+                    'description': r['snippet'].get('description', ''),
+                    'published_at': r['snippet']['publishedAt'],
+                    'channel_title': r['snippet']['channelTitle'],
+                    'thumbnail': r['snippet']['thumbnails']['default']['url'],
+                    'keyword': keyword_obj,
+                    'method': VideoFetchMethod.YOUTUBE,
+                }
+            )
 
     VideoLog.objects.create(
         error = False,

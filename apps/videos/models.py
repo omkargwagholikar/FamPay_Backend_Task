@@ -63,4 +63,4 @@ class VideoLog(models.Model):
     
 
     def __str__(self) -> str:
-        return self.keyword.keyword
+        return f"{self.keyword.keyword} - {self.method} - {self.number_added}"

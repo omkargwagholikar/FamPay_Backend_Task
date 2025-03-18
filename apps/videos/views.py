@@ -1,4 +1,5 @@
 import json
+import logging
 from django.utils import timezone
 from django.http import JsonResponse
 from rest_framework.views import APIView, status
@@ -7,6 +8,8 @@ from django_celery_beat.models import PeriodicTask, IntervalSchedule
 from .models import VideoLog, Video, VideoFetchMethod, KeyWordEntry
 
 schedule, created = IntervalSchedule.objects.get_or_create(every=10, period=IntervalSchedule.SECONDS)
+
+logger = logging.getLogger("server_log")
 
 def health_check(request):
     data = {

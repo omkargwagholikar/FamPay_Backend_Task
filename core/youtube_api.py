@@ -6,7 +6,8 @@ from django.conf import settings
 from apps.videos.models import VideoFetchMethod
 import requests
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("youtube_log")
+
 INVIDIOUS_URL = "id.420129.xyz"
 INVIDIOUS_API = f"http://{INVIDIOUS_URL}/api/v1/search"
 QUERY = "FamPay"
@@ -58,8 +59,8 @@ class YouTubeAPI:
     """
     def __init__(self):
         # self.api_keys = settings.YOUTUBE_API_KEYS
-        # self.api_keys = []
         self.api_keys = []
+        # self.api_keys = []
         self.key_manager = YouTubeAPIKeyManager(self.api_keys)
         self.youtube = self.key_manager.build_youtube_client()
 
@@ -106,7 +107,7 @@ class YouTubeAPI:
         max_attempts = len(self.api_keys)
         
         while attempts < max_attempts:
-            print("Attempt:", attempts)
+            logger.info("Attempt:", attempts)
             try:
                 response = self.youtube.search().list(
                     q=query,
