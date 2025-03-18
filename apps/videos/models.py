@@ -1,4 +1,10 @@
 from django.db import models
+from django.utils import timezone
+
+class VideoFetchMethod(models.TextChoices):
+    YOUTUBE = "youtube", "YOUTUBE"
+    INVIDIOUS = "invidious", "INVIDIOUS"
+
 
 # Create your models here.
 class Video(models.Model):
@@ -26,3 +32,18 @@ class Video(models.Model):
 
     def __str__(self):
         return self.title
+    
+class VideoLog(models.Model):
+    id = models.CharField(primary_key=True, max_length=20)
+    error = models.BooleanField(default=False)
+    method = models.CharField(
+        max_length=20,
+        choices=VideoFetchMethod.choices,
+        default=VideoFetchMethod.YOUTUBE,
+    )
+    number_added = models.IntegerField(default=0)
+    keyword = models.TextField(default=" -- no name provided --")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return self.keyword + " - " + self.created_at

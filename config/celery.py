@@ -9,6 +9,9 @@ app = Celery('FamPay_Backend_Task')
 # Use string as config key in settings because celery can't serialize objects
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
+app.conf.enable_utc = False
+app.conf.update(timezone="Asia/Kolkata")
+
 # Load task modules from all registered Django app configs
 app.autodiscover_tasks()
 

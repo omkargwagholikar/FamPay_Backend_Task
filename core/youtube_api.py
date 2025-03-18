@@ -57,7 +57,7 @@ class YouTubeAPI:
     """
     def __init__(self):
         # self.api_keys = settings.YOUTUBE_API_KEYS
-        # self.api_keys = ["AIzaSyDaPyqs2kSrLiPpRglti_EWu5WIULnQdNM"]
+        # self.api_keys = []
         self.api_keys = []
         self.key_manager = YouTubeAPIKeyManager(self.api_keys)
         self.youtube = self.key_manager.build_youtube_client()
@@ -163,13 +163,13 @@ class YouTubeAPI:
         
         return None
     
-youtube_api = YouTubeAPI()
-search_query = QUERY
-max_results = 50
-logger.info(f"Fetching latest videos for query: {search_query}")
+# youtube_api = YouTubeAPI()
+# search_query = QUERY
+# max_results = 50
+# logger.info(f"Fetching latest videos for query: {search_query}")
     
-response = youtube_api.fetch_videos(search_query, max_results)
-# for r in response:
-#     print(r['title'])
+# response = youtube_api.fetch_videos(search_query, max_results)
+# # for r in response:
+# #     print(r['title'])
 
-print(response)
+# print(response)
