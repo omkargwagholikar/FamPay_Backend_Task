@@ -8,7 +8,7 @@ router.register(r'videos', views.VideoViewSet, basename='video')
 
 
 urlpatterns = [
-    path("ping/", views.health_check),
+    path("ping/", views.health_check, name="ping"),
     path('', include(router.urls)),
     path('keyword/<str:keyword>/videos/', views.keyword_videos, name='keyword-videos'),
 ]
