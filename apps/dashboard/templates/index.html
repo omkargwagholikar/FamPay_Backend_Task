@@ -250,6 +250,68 @@
             background-color: var(--primary-color);
             color: white;
         }
+
+        .skeleton-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .skeleton-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .skeleton-thumbnail {
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        
+        .skeleton-info {
+            padding: 12px;
+        }
+        
+        .skeleton-title {
+            height: 20px;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+        
+        .skeleton-title:nth-child(2) {
+            width: 70%;
+        }
+        
+        .skeleton-channel {
+            height: 14px;
+            width: 60%;
+            margin-bottom: 5px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+        
+        .skeleton-metadata {
+            height: 14px;
+            width: 40%;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
     </style>
 </head>
 <body>
@@ -287,6 +349,35 @@
     </main>
 
     <script>
+
+        function showSkeletonLoading() {
+            // Clear existing content
+            videosContainer.innerHTML = '';
+            
+            // Create skeleton container
+            const skeletonContainer = document.createElement('div');
+            skeletonContainer.className = 'skeleton-container';
+            
+            // Create multiple skeleton cards
+            for (let i = 0; i < 8; i++) {
+                const skeletonCard = document.createElement('div');
+                skeletonCard.className = 'skeleton-card';
+                skeletonCard.innerHTML = `
+                    <div class="skeleton-thumbnail"></div>
+                    <div class="skeleton-info">
+                        <div class="skeleton-title"></div>
+                        <div class="skeleton-title"></div>
+                        <div class="skeleton-channel"></div>
+                        <div class="skeleton-metadata"></div>
+                    </div>
+                `;
+                skeletonContainer.appendChild(skeletonCard);
+            }
+            
+            // Add skeleton container to videos container
+            videosContainer.appendChild(skeletonContainer);
+        }
+
         // Configuration
         const API_BASE_URL = '/api'; // Update with your API base URL
         let currentPage = 1;
@@ -506,8 +597,10 @@
         
         // Show loading spinner
         function showLoading() {
+            // loadingSpinner.style.display = 'block';
+            // videosContainer.style.opacity = '0.5';
             loadingSpinner.style.display = 'block';
-            videosContainer.style.opacity = '0.5';
+            showSkeletonLoading();
         }
         
         // Hide loading spinner

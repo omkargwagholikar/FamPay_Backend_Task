@@ -23,18 +23,18 @@ def health_check(request):
     }
     return JsonResponse(data, status=status.HTTP_200_OK)
 
-def check_trigger(request):
-    task_name = "python"
+# @api_view(['GET'])
+def create_keyword_and_task(request, task_name):
     logger.info(task_name)
 
-    # TODO: Uncomment before submission
-    # if KeyWordEntry.objects.filter(keyword=task_name).exists():
-    #     return JsonResponse({"status":"Keyword already exists"})
+    if KeyWordEntry.objects.filter(keyword=task_name).exists(): # Checking if keyword already exists
+        return JsonResponse({"status":"Keyword already exists"})
 
-    if KeyWordEntry.objects.filter(keyword=task_name).exists():
-        keyword = KeyWordEntry.objects.get(keyword=task_name)
-    else:
-        keyword = KeyWordEntry.objects.create(keyword=task_name)
+    # if KeyWordEntry.objects.filter(keyword=task_name).exists():
+    #     keyword = KeyWordEntry.objects.get(keyword=task_name)
+    # else:
+    #     keyword = KeyWordEntry.objects.create(keyword=task_name)
+    keyword = KeyWordEntry.objects.create(keyword=task_name)
 
     task = PeriodicTask.objects.create(
         interval=schedule,  # Use the interval schedule
@@ -74,6 +74,9 @@ class VideoViewSet(viewsets.ReadOnlyModelViewSet):
         keyword_id = self.request.query_params.get('keyword_id', None)
         keyword_text = self.request.query_params.get('keyword', None)
         
+        print("keyword_id: ", keyword_id)
+        print("keyword_text: ", keyword_text)
+
         if keyword_id is not None:
             queryset = queryset.filter(keyword_id=keyword_id)
         elif keyword_text is not None:
@@ -92,9 +95,15 @@ def keyword_videos(request, keyword):
     """
     API endpoint to retrieve paginated videos for a specific keyword.
     """
+    print(keyword)
     # First, get the keyword entry or return 404 if not found
-    keyword_entry = get_object_or_404(KeyWordEntry, keyword=keyword)
-    
+    # keyword_entry = get_object_or_404(KeyWordEntry, keyword=keyword)
+    if not KeyWordEntry.objects.filter(keyword=keyword).exists():
+        resp = create_keyword_and_task(request, keyword)
+        print("Create new keyword and task for", keyword)
+        print(resp)
+    keyword_entry = KeyWordEntry.objects.get(keyword=keyword)
+
     # Then, get all videos for this keyword
     videos = Video.objects.filter(keyword=keyword_entry)
     
