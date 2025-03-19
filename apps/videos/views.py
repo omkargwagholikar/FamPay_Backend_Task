@@ -9,9 +9,9 @@ from rest_framework import viewsets, filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from django.shortcuts import get_object_or_404
 from .models import Video, KeyWordEntry
 from .serializers import VideoSerializer
+
 schedule, created = IntervalSchedule.objects.get_or_create(every=10, period=IntervalSchedule.SECONDS)
 
 logger = logging.getLogger("task_log")
@@ -29,11 +29,6 @@ def create_keyword_and_task(request, task_name):
 
     if KeyWordEntry.objects.filter(keyword=task_name).exists(): # Checking if keyword already exists
         return JsonResponse({"status":"Keyword already exists"})
-
-    # if KeyWordEntry.objects.filter(keyword=task_name).exists():
-    #     keyword = KeyWordEntry.objects.get(keyword=task_name)
-    # else:
-    #     keyword = KeyWordEntry.objects.create(keyword=task_name)
     keyword = KeyWordEntry.objects.create(keyword=task_name)
 
     task = PeriodicTask.objects.create(
@@ -48,7 +43,7 @@ def create_keyword_and_task(request, task_name):
 
 
 class StandardResultsPagination(PageNumberPagination):
-    page_size = 10
+    page_size = 12
     page_size_query_param = 'page_size'
     max_page_size = 100
 

@@ -24,14 +24,28 @@ def process_trigger(self, keyword):
     if method == VideoFetchMethod.INVIDIOUS:
         logger.info("IN VideoFetchMethod.INVIDIOUS")
         for r in response:
-            logger.info(f'{r["videoId"]} - {r["title"]}')
+            print(type(r))
+            videoId = ""
+            title = ""
+            description = ""
+            author = ""
+            try:
+                videoId = r["videoId"]
+                title = r["title"] 
+                description = r["description"]
+                author = r["author"]
+
+            except KeyError:
+                logger.critical(f"KeyError: {r}")
+
+            logger.info(f'{videoId} - {r["title"]}')
             video, created = Video.objects.update_or_create(
-                video_id=r["videoId"],  # Unique identifier for the video
+                video_id=videoId,  # Unique identifier for the video
                 defaults={
-                    'title': r["title"],
-                    'description': r["description"],
+                    'title': title,
+                    'description': description,
                     'published_at': datetime.fromtimestamp(r["published"]),
-                    'channel_title': r["author"],
+                    'channel_title': author,
                     'thumbnail': r["videoThumbnails"][0]["url"],
                     'keyword': keyword_obj,
                     'method': VideoFetchMethod.INVIDIOUS,
@@ -56,7 +70,7 @@ def process_trigger(self, keyword):
 
     VideoLog.objects.create(
         error = False,
-        method = VideoFetchMethod.YOUTUBE,
+        method = method,
         number_added = len(response),
         keyword = keyword_obj
     )

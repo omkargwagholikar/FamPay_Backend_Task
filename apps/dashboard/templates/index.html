@@ -386,11 +386,13 @@
         
         // Popular keywords to display as tags
         const popularKeywords = [
-            'python', 'FamPay',
-            // {% for keyword in keywords %}
-            // '{{ keyword }}',
-            // {% endfor %}
+            // 'python', 'FamPay',
         ];
+        {% for keyword in key_words %}
+            {% if keyword.keyword != '--' %}
+                popularKeywords.push('{{ keyword.keyword }}');
+            {% endif %}
+        {% endfor %}
         
         // DOM Elements
         const searchForm = document.getElementById('search-form');
@@ -472,7 +474,7 @@
                 
                 if (response.ok) {
                     renderVideos(data.results);
-                    totalPages = Math.ceil(data.count / 10); // Assuming page size of 10
+                    totalPages = Math.ceil(data.count / 12); // Assuming page size of 12
                     renderPagination();
                     
                     if (data.results.length === 0) {
