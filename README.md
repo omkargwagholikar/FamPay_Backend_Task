@@ -16,6 +16,15 @@ Additionally there is functionality for interface to interact with the system.
 - Error handling and logging for API quota management
 - Scalable architecture using Django, Redis, and Celery
 
+## Tech Stack
+- Python
+- Django
+- Django REST Framework
+- SQLite
+- Redis
+- Celery
+- Celery Beat
+
 ## API Endpoints
 
 1. **Interfaces**:
@@ -248,9 +257,7 @@ The YouTube Data API v3 provides a daily quota of 10,000 units per project. Each
 Since this exceeds the free tier quota, the application implements:
 1. Multiple API key support (rotational usage)
 2. Configurable fetch interval (can be adjusted based on requirements)
-3. Smart caching to reduce unnecessary API calls
 
 For a production environment, it's recommended to:
 - Increase the fetch interval to 60 seconds or more
 - Register multiple API keys (at least 9 for continuous 24/7 operation)
-- Consider implementing more sophisticated throttling mechanisms

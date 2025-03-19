@@ -12,10 +12,28 @@ from rest_framework.decorators import api_view
 from .models import Video, KeyWordEntry
 from .serializers import VideoSerializer
 
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
 schedule, created = IntervalSchedule.objects.get_or_create(every=10, period=IntervalSchedule.SECONDS)
 
 logger = logging.getLogger("task_log")
 
+@swagger_auto_schema(
+    method='get',
+    operation_description="Health check endpoint for the video service",
+    responses={200: openapi.Response(
+        description="Success",
+        schema=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'message': openapi.Schema(type=openapi.TYPE_STRING, description="Service message"),
+                'status': openapi.Schema(type=openapi.TYPE_STRING, description="Service status"),
+            }
+        )
+    )}
+)
+@api_view(['GET'])
 def health_check(request):
     data = {
         "message": "vid pong",
@@ -23,7 +41,6 @@ def health_check(request):
     }
     return JsonResponse(data, status=status.HTTP_200_OK)
 
-# @api_view(['GET'])
 def create_keyword_and_task(request, task_name):
     logger.info(task_name)
 

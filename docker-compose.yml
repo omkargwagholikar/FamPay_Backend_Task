@@ -1,0 +1,72 @@
+version: '3.9'
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_BROKER=redis://redis:6379/0
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    restart: always
+    networks:
+      - app_network
+
+  redis:
+    image: redis:6.2
+    expose:
+      - "6379"
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A config worker -l info
+    depends_on:
+      - django
+      - redis
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - app_network
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A config beat -l INFO
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
