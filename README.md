@@ -260,4 +260,4 @@ Since this exceeds the free tier quota, the application implements:
 
 For a production environment, it's recommended to:
 - Increase the fetch interval to 60 seconds or more
-- Register multiple API keys (at least 9 for continuous 24/7 operation)
+- Register multiple API keys (for continuous 24/7 operation)
