@@ -76,6 +76,11 @@ Additionally there is functionality for interface to interact with the system.
        ```
           
    - **GET** `/api/videos/{video_id}/`: Retrieve a specific video by ID
+3. **Documentation**:
+   - Swagger
+      - **GET** `/docs`
+   - Redoc
+      - **GET** `/redoc`
 
 ## Installation and Setup
 - Rename example.env to .env
