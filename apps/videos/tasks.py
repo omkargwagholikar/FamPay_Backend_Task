@@ -24,16 +24,20 @@ def process_trigger(self, keyword):
     if method == VideoFetchMethod.INVIDIOUS:
         logger.info("IN VideoFetchMethod.INVIDIOUS")
         for r in response:
-            print(type(r))
             videoId = ""
             title = ""
             description = ""
             author = ""
+            publish = timezone.now()
+            thumbnail = "https://placehold.co/600x400"
+
             try:
                 videoId = r["videoId"]
                 title = r["title"] 
                 description = r["description"]
                 author = r["author"]
+                publish = datetime.fromtimestamp(r["published"])
+                thumbnail = r["videoThumbnails"][0]["url"]
 
             except KeyError:
                 logger.critical(f"KeyError: {r}")
@@ -44,11 +48,11 @@ def process_trigger(self, keyword):
                 defaults={
                     'title': title,
                     'description': description,
-                    'published_at': datetime.fromtimestamp(r["published"]),
+                    'published_at': publish,
                     'channel_title': author,
-                    'thumbnail': r["videoThumbnails"][0]["url"],
+                    'thumbnail': thumbnail,
                     'keyword': keyword_obj,
-                    'method': VideoFetchMethod.INVIDIOUS,
+                    'method': method,
                 }
             )
     else:
@@ -64,7 +68,7 @@ def process_trigger(self, keyword):
                     'channel_title': r['snippet']['channelTitle'],
                     'thumbnail': r['snippet']['thumbnails']['default']['url'],
                     'keyword': keyword_obj,
-                    'method': VideoFetchMethod.YOUTUBE,
+                    'method': method,
                 }
             )
 

@@ -5,12 +5,19 @@ from googleapiclient.errors import HttpError
 from django.conf import settings
 from apps.videos.models import VideoFetchMethod
 import requests
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 logger = logging.getLogger("youtube_log")
 
-INVIDIOUS_URL = "id.420129.xyz"
+INVIDIOUS_URL = os.getenv("INVIDIOUS_URL")
 INVIDIOUS_API = f"http://{INVIDIOUS_URL}/api/v1/search"
-QUERY = "FamPay"
+YT_KEYS = os.getenv("YT_KEYS")
+
+YT_KEYS = [key.strip() for key in YT_KEYS.split(",")]
+if len(YT_KEYS) == 0 or (len(YT_KEYS) == 1 and YT_KEYS[0] == ""):
+    YT_KEYS = []
 
 class YouTubeAPIKeyManager:
     """
@@ -58,9 +65,12 @@ class YouTubeAPI:
     Service class to interact with the YouTube API v3.
     """
     def __init__(self):
-        # self.api_keys = settings.YOUTUBE_API_KEYS
-        self.api_keys = []
-        # self.api_keys = []
+        self.api_keys = YT_KEYS
+        
+        print("="*10)
+        print(self.api_keys, type(self.api_keys))
+        print("="*10)
+
         self.key_manager = YouTubeAPIKeyManager(self.api_keys)
         self.youtube = self.key_manager.build_youtube_client()
 
